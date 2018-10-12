@@ -15,7 +15,7 @@ class OldMessageDeleter:
 		self._connectionsRLock = threading.RLock()
 		connection = sqlite3.connect(self._databaseName)
 		c = connection.cursor()
-		c.execute("CREATE TABLE IF NOT EXISTS messages (datetime DATETIME, messageId INTEGER, chatId INTEGER, deleted BOOLEAN)")
+		c.execute("CREATE TABLE IF NOT EXISTS messages (datetime DATETIME, messageId INTEGER, chatId INTEGER)")
 		connection.commit()
 		connection.close()
 	def _obtainDatabaseConnection(self):
@@ -40,22 +40,23 @@ class OldMessageDeleter:
 			chatId = jsonData["message"]["chat"]["id"]
 
 			c = connection.cursor()
-			c.execute("INSERT INTO messages (datetime, messageId, chatId, deleted) VALUES (?, ?, ?, ?)", (dt, messageId, chatId, False))
+			c.execute("INSERT INTO messages (datetime, messageId, chatId) VALUES (?, ?, ?)", (dt, messageId, chatId))
 			logging.debug("MESSAGE_DELETER:Saved message data:"+str([dt, messageId, chatId, False]))
 			connection.commit()
 	def performDeleteOldMessages(self):
 		connection = self._obtainDatabaseConnection()
 		c = connection.cursor()
-		for row in c.execute('SELECT rowid, chatId, messageId FROM messages WHERE datetime < ? AND NOT deleted', (int(time.time()-self._retaintionDuration),)):
+		c.execute('SELECT rowid, chatId, messageId FROM messages WHERE datetime < ?', (int(time.time()-self._retaintionDuration),))
+		for row in c.fetchall():
 			rowid, chatId, messageId = row
 			try:
 				self._bot.callApi("deleteMessage", {"chat_id": chatId, "message_id": messageId}, self.MESSAGE_DELETION_API_CALL_TIMEOUT)
-				c.execute('UPDATE messages SET deleted = TRUE WHERE rowid = ?', (rowid,))
+				c.execute('DELETE FROM messages WHERE rowid = ?', (rowid,))
 				logging.info("MESSAGE_DELETER:Deleted {} {}".format(chatId, messageId))
 			except urllib.error.HTTPError as response:
 				logging.error("MESSAGE_DELETER:HTTP Error:{} {}".format(chatId, messageId)+response.read().decode("utf-8"))
 				if response.code == 400:
-					c.execute('UPDATE messages SET deleted = TRUE WHERE rowid = ?', (rowid,))
+					c.execute('DELETE FROM messages WHERE rowid = ?', (rowid,))
 					logging.info("MESSAGE_DELETER:Deleted {} {}".format(chatId, messageId))
 			except Exception as e:
 				logging.error("MESSAGE_DELETER:Other Error:"+str(e))
