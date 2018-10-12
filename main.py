@@ -3,6 +3,7 @@ from telegramBot import TelegramBot
 from oldMessageDeleter import OldMessageDeleter
 
 MESSAGE_RETAINTION_DURATION = 7*24*60*60 #Retain a week of data
+POLL_INTERVAL = 5*60
 
 if __name__ == "__main__":
 	with open('data/token', 'r') as f:
@@ -12,7 +13,7 @@ if __name__ == "__main__":
 
 	telegramBot.setUpdateOffsetFilenameAndLoadOffset("data/updateOffset")
 	telegramBot.attachHook(oldMessageDeleter.newMessageHandler)
-	telegramBot.startPolling(10, 0)
+	telegramBot.startPolling(POLL_INTERVAL, 0)
 	logging.debug('STARTUP:Bot initialized!')
 	while True:
 		oldMessageDeleter.performDeleteOldMessages()
