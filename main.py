@@ -7,6 +7,7 @@ if __name__ == "__main__":
 	
 	telegramBot = TelegramBot(codecs.encode(open('data/token', 'r').read().replace('\n', ''), "rot-13"))
 	telegramBot.setLogFile('data/chat.log', logging.DEBUG)
+	telegramBot.setUpdateOffsetFilenameAndLoadOffset("data/updateOffset")
 	telegramBot.attachHook(print)
 	telegramBot.attachHook(oldMessageDeleter.newMessageHandler)
 	telegramBot.startPolling(10, 0)

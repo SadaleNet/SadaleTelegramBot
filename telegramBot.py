@@ -2,6 +2,7 @@ import codecs
 import threading
 import json
 import time
+import os
 import logging
 import sqlite3
 import urllib.request
@@ -14,9 +15,17 @@ class TelegramBot:
 		self._pollUpdateOffset = 0
 		self._pollVariablesLock = threading.RLock()
 		self._updateHooks = []
+		self._updateOffsetFilename = None
 		self._pollThread = None
 	def setLogFile(self, filename:str, level=logging.INFO):
 		logging.basicConfig(filename=filename, format='%(asctime)s:%(levelname)s:%(message)s', level=level)
+	def setUpdateOffsetFilenameAndLoadOffset(self, filename:str):
+		self._updateOffsetFilename = filename
+		logging.debug("UPDATE_OFFSET:Setting update offset file to: "+self._updateOffsetFilename)
+		if os.path.exists(self._updateOffsetFilename):
+			with open(self._updateOffsetFilename, 'r', newline=None) as f:
+				self._pollUpdateOffset = int(f.read().replace('\n', ''))
+				logging.debug("UPDATE_OFFSET:Loaded update offset: "+str(self._pollUpdateOffset))
 	def attachHook(self, hook):
 		self._updateHooks.append(hook)
 	def detachHook(self, hook):
@@ -68,6 +77,10 @@ class TelegramBot:
 								if data["update_id"]+1 > self._pollUpdateOffset:
 									self._pollUpdateOffset = data["update_id"]+1
 								self.updateHandler(data)
+							if self._updateOffsetFilename != None and len(jsonResponseData["result"]) > 0:
+								with open(self._updateOffsetFilename, 'w', newline=None) as f:
+									f.write(str(self._pollUpdateOffset))
+									logging.debug("UPDATE_OFFSET:Saved update offset: "+str(self._pollUpdateOffset))
 						else:
 							logging.warn("POLLING:Telegram API Error:"+responseData.decode("utf-8"))
 					except json.JSONDecodeError as jsonError:
