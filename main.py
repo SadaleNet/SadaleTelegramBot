@@ -11,6 +11,6 @@ if __name__ == "__main__":
 	telegramBot.attachHook(print)
 	telegramBot.attachHook(oldMessageDeleter.newMessageHandler)
 	telegramBot.startPolling(10, 0)
-	logging.debug('STARTUP:Bot launched!')
+	logging.debug('STARTUP:Bot initialized!')
 	while True:
 		time.sleep(1)
