@@ -75,7 +75,7 @@ class TelegramBot:
 				with self.callApi("getUpdates", {"offset": self._pollUpdateOffset, "timeout":self._pollDuration}, self._pollDuration+self.API_RESPOSE_DELAY) as response:
 					responseData = response.read()
 					try:
-						jsonResponseData = json.loads(responseData)
+						jsonResponseData = json.loads(responseData.decode('utf-8'))
 						logging.info("POLLING:Response Received:"+responseData.decode("utf-8"))
 						if jsonResponseData["ok"]:
 							for data in jsonResponseData["result"]:
