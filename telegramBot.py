@@ -87,6 +87,8 @@ class TelegramBot:
 						logging.error("POLLING:Telegram API nvalid JSON payload:"+jsonError.msg+":"+responseData.decode("utf-8"))
 			except urllib.error.HTTPError as response:
 				logging.error("POLLING:HTTP Error:"+response.read().decode("utf-8"))
+			except urllib.error.URLError as response:
+				logging.error("POLLING:URL Error:"+str(response.reason))
 			time.sleep(5)
 			self._poll()
 
