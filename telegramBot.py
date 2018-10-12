@@ -15,6 +15,7 @@ class TelegramBot:
 		self._pollUpdateOffset = 0
 		self._pollVariablesLock = threading.RLock()
 		self._updateHooks = []
+		self._updateHooksLock = threading.RLock()
 		self._updateOffsetFilename = None
 		self._pollThread = None
 	def setLogFile(self, filename:str, level=logging.INFO):
@@ -27,12 +28,15 @@ class TelegramBot:
 				self._pollUpdateOffset = int(f.read().replace('\n', ''))
 				logging.debug("UPDATE_OFFSET:Loaded update offset: "+str(self._pollUpdateOffset))
 	def attachHook(self, hook):
-		self._updateHooks.append(hook)
+		with self._updateHooksLock:
+			self._updateHooks.append(hook)
 	def detachHook(self, hook):
-		self._updateHooks.remove(hook)
+		with self._updateHooksLock:
+			self._updateHooks.remove(hook)
 	def updateHandler(self, message):
-		for hook in self._updateHooks:
-			hook(message)
+		with self._updateHooksLock:
+			for hook in self._updateHooks:
+				hook(message)
 	def startPolling(self, pollDuration, updateOffset):
 		self._pollVariablesLock.acquire()
 		if self._pollDuration == -1:
