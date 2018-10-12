@@ -41,7 +41,7 @@ class OldMessageDeleter:
 
 			c = connection.cursor()
 			c.execute("INSERT INTO messages (datetime, messageId, chatId) VALUES (?, ?, ?)", (dt, messageId, chatId))
-			logging.debug("MESSAGE_DELETER:Saved message data:"+str([dt, messageId, chatId, False]))
+			logging.debug("MESSAGE_DELETER:Saved message data:"+str([dt, messageId, chatId]))
 			connection.commit()
 	def performDeleteOldMessages(self):
 		connection = self._obtainDatabaseConnection()
