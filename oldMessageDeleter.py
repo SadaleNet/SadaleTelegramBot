@@ -53,10 +53,10 @@ class OldMessageDeleter:
 				c.execute('UPDATE messages SET deleted = TRUE WHERE rowid = ?', (rowid,))
 				logging.info("MESSAGE_DELETER:Deleted {} {}".format(chatId, messageId))
 			except urllib.error.HTTPError as response:
-				logging.error("MESSAGE_DELETER:HTTP Error:"+response.read().decode("utf-8"))
+				logging.error("MESSAGE_DELETER:HTTP Error:{} {}".format(chatId, messageId)+response.read().decode("utf-8"))
 				if response.code == 400:
 					c.execute('UPDATE messages SET deleted = TRUE WHERE rowid = ?', (rowid,))
 					logging.info("MESSAGE_DELETER:Deleted {} {}".format(chatId, messageId))
-			except urllib.error.URLError as response:
-				logging.error("MESSAGE_DELETER:URL Error:"+str(response.reason))
+			except Exception as e:
+				logging.error("MESSAGE_DELETER:Other Error:"+str(e))
 		connection.commit()
