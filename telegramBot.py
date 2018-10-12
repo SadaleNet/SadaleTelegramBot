@@ -11,6 +11,7 @@ import urllib.parse
 class TelegramBot:
 	def __init__(self, apiKey):
 		self._apiKey = apiKey
+		self.API_RESPOSE_DELAY = 20
 		self._pollDuration = -1
 		self._pollUpdateOffset = 0
 		self._pollVariablesLock = threading.RLock()
@@ -71,7 +72,7 @@ class TelegramBot:
 			self._pollVariablesLock.release()
 			try:
 				logging.debug('POLLING:Sending getUpdates Request')
-				with self.callApi("getUpdates", {"offset": self._pollUpdateOffset}, self._pollDuration+10) as response:
+				with self.callApi("getUpdates", {"offset": self._pollUpdateOffset, "timeout":self._pollDuration}, self._pollDuration+self.API_RESPOSE_DELAY) as response:
 					responseData = response.read()
 					try:
 						jsonResponseData = json.loads(responseData)
