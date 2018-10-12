@@ -2,13 +2,15 @@ import logging, codecs, time
 from telegramBot import TelegramBot
 from oldMessageDeleter import OldMessageDeleter
 
-if __name__ == "__main__":
-	telegramBot = TelegramBot(codecs.encode(open('data/token', 'r').read().replace('\n', ''), "rot-13"))
-	oldMessageDeleter = OldMessageDeleter(telegramBot, "data/oldMessageDeleter.db", 20)
+MESSAGE_RETAINTION_DURATION = 7*24*60*60 #Retain a week of data
 
+if __name__ == "__main__":
+	with open('data/token', 'r') as f:
+		telegramBot = TelegramBot(codecs.encode(f.read().replace('\n', ''), "rot-13"))
+	oldMessageDeleter = OldMessageDeleter(telegramBot, "data/oldMessageDeleter.db", MESSAGE_RETAINTION_DURATION)
 	telegramBot.setLogFile('data/chat.log', logging.DEBUG)
+
 	telegramBot.setUpdateOffsetFilenameAndLoadOffset("data/updateOffset")
-	telegramBot.attachHook(print)
 	telegramBot.attachHook(oldMessageDeleter.newMessageHandler)
 	telegramBot.startPolling(10, 0)
 	logging.debug('STARTUP:Bot initialized!')
