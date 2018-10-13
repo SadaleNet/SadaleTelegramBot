@@ -5,3 +5,19 @@ This is a extensible telegram bot developed by Sadale.
 Currently it only supports deletion of old messages.
 
 More feature will be added in the future, maybe.
+
+## Usage
+
+1. Clone this repo
+2. Create the directory `data` inside the cloned repo
+3. Create the file "token" inside
+4. Put in your token inside the file
+5. Run main.py with Python 3
+
+If you wish to run the semi-automated test cases, create the directory `data/test`.
+Then create a file named `token` inside and put your telegram bot token.
+
+You'll also have to modify TEST_GROUPS_ID inside test.py to point to your
+own telegram test group and telegram test super group.
+
+Then run test.py and follow the instruction inside.
