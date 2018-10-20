@@ -60,4 +60,4 @@ class OldMessageDeleter:
 					logging.info("MESSAGE_DELETER:Deleted {} {}".format(chatId, messageId))
 			except Exception as e:
 				logging.error("MESSAGE_DELETER:Other Error:"+str(e))
-		connection.commit()
+			connection.commit() #Commit every time. That allows newMessageHandler(), which is using another cursor, to write to the database.
