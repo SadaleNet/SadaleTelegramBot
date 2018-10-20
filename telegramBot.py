@@ -1,4 +1,5 @@
 import codecs
+import sched
 import threading
 import json
 import time
@@ -67,9 +68,10 @@ class TelegramBot:
 					timeout=timeout
 				)
 	def _poll(self):
-		self._pollVariablesLock.acquire()
-		if self._pollDuration != -1:
-			self._pollVariablesLock.release()
+		while True:
+			with self._pollVariablesLock:
+				if self._pollDuration == -1:
+					break
 			try:
 				logging.debug('POLLING:Sending getUpdates Request')
 				with self.callApi("getUpdates", {"offset": self._pollUpdateOffset, "timeout":self._pollDuration}, self._pollDuration+self.API_RESPOSE_DELAY) as response:
@@ -95,5 +97,4 @@ class TelegramBot:
 			except Exception as e:
 				logging.error("POLLING:Other Error:"+str(e))
 			time.sleep(5)
-			self._poll()
 
